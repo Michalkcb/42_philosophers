@@ -6,7 +6,7 @@
 /*   By: mbany <mbany@student.42warsaw.pl>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/07 19:54:12 by mbany             #+#    #+#             */
-/*   Updated: 2024/11/07 19:57:06 by mbany            ###   ########.fr       */
+/*   Updated: 2024/11/09 17:06:07 by mbany            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,23 +132,40 @@ void	unlock_philosophers_mutex(t_table *philosophers)
 	pthread_mutex_unlock(philosophers->right_fork);
 }
 
-int	initialize_table(t_table *tab, char **argv)
+int	validate_arguments(int argc, char **argv)
 {
-	tab->number_of_philosophers = ft_atoi(argv[1]);
-	tab->time_to_die = ft_atoi(argv[2]);
-	tab->time_to_eat = ft_atoi(argv[3]);
-	tab->time_to_sleep = ft_atoi(argv[4]);
-	if (argv[5])
-		tab->number_of_meals = ft_atoi(argv[5]);
-	else
-		tab->number_of_meals = -1;
-	tab->philosopher_dead = 0;
-	if (init_mutex(tab) == FAILURE)
-		return (FAILURE);
-	if (init_philos(tab) == FAILURE)
-		return (FAILURE);
-	return (SUCCESS);
+	int	i;
+
+	// Inicjalizuje licznik i od 1 (pomijając nazwę programu argv[0])
+	i = 1;
+
+	// Sprawdza, czy liczba argumentów jest dokładnie 5 lub 6.
+	// Jeżeli nie, wypisuje informację o poprawnym użyciu programu i kończy z błędem.
+	if (argc != 5 && argc != 6)
+	{
+		printf("Usage: %s num_philos time_to_die ", argv[0]);
+		printf("time_to_eat time_to_sleep [meals_required]\n");
+		return (1);
+	}
+
+	// Pętla iterująca po wszystkich argumentach (od argv[1] do argv[argc-1]).
+	while (i < argc)
+	{
+		// Dla każdego argumentu sprawdza, czy jest dodatnią liczbą całkowitą.
+		// Jeśli któryś argument nie spełnia tego warunku, wyświetla komunikat
+		// o błędzie i kończy funkcję, zwracając wartość 1 (błąd).
+		if (!is_positive_integer(argv[i]))
+		{
+			printf("Error: All args must be positive integers.\n");
+			return (1);
+		}
+		i++;
+	}
+
+	// Jeżeli wszystkie argumenty są poprawne, funkcja kończy działanie, zwracając 0 (brak błędu).
+	return (0);
 }
+
 
 int	is_alive(t_philo *philo)
 {
@@ -335,19 +352,32 @@ void	join_threads(t_table *data)
 	}
 }
 
-void	begin_philosophers_routine(t_table *data)
+void begin_philosophers_routine(t_table *data)
 {
-	int	i;
+    int i;
 
-	i = 0;
-	data->starting_time = get_time();
-	while (i < data->number_of_philosophers)
-	{
-		pthread_create(&data->philosophers[i].thread_id, NULL,
-			&philosophers_routine, (void *)&data->philosophers[i]);
-		i++;
-	}
+    // Inicjalizacja zmiennej i, która będzie używana do iteracji przez wszystkich filozofów.
+    i = 0;
+
+    // Ustawienie czasu początkowego symulacji, zazwyczaj wykorzystywane do obliczeń związanych z czasem.
+    data->starting_time = get_time();
+
+    // Pętla, która tworzy wątki dla każdego filozofa.
+    while (i < data->number_of_philosophers)
+    {
+        // Tworzenie wątku dla każdego filozofa.
+        // &data->philosophers[i].thread_id: adres zmiennej, która przechowa identyfikator wątku.
+        // NULL: brak dodatkowych atrybutów wątku (np. rozmiar stosu, polityka planowania itp.).
+        // &philosophers_routine: funkcja, która będzie wykonywana przez nowy wątek (rutyna filozofa).
+        // (void *)&data->philosophers[i]: przekazanie wskaźnika do konkretnego filozofa jako argumentu funkcji wątku.
+        pthread_create(&data->philosophers[i].thread_id, NULL,
+            &philosophers_routine, (void *)&data->philosophers[i]);
+        
+        // Przejście do następnego filozofa.
+        i++;
+    }
 }
+
 
 void	print_message(char *str, t_philo *philosopher)
 {
@@ -490,12 +520,38 @@ int	is_positive_integer(const char *str)
 	}
 	return (1);
 }
+int	initialize_table(t_table *tab, char **argv)
+{
+	tab->number_of_philosophers = ft_atoi(argv[1]);
+	tab->time_to_die = ft_atoi(argv[2]);
+	tab->time_to_eat = ft_atoi(argv[3]);
+	tab->time_to_sleep = ft_atoi(argv[4]);
+	if (argv[5])
+		tab->number_of_meals = ft_atoi(argv[5]);
+	else
+		tab->number_of_meals = -1;
+	tab->philosopher_dead = 0;
 
+    // Inicjalizuje mutexy niezbędne do synchronizacji dostępu do zasobów.
+    // Jeśli `init_mutex` zwróci wartość `FAILURE`, funkcja przerywa działanie, zwracając `FAILURE`.
+	if (init_mutex(tab) == FAILURE)
+		return (FAILURE);
+
+    // Inicjalizuje strukturę reprezentującą filozofów i ich atrybuty.
+    // Jeśli `init_philos` zwróci wartość `FAILURE`, funkcja przerywa działanie, zwracając `FAILURE`.
+	if (init_philos(tab) == FAILURE)
+		return (FAILURE);
+
+    // Jeśli wszystkie operacje zakończyły się pomyślnie, funkcja zwraca `SUCCESS`.
+	return (SUCCESS);
+}
+
+// funkcja sprawdza czy podane są wszystkie argumennty i jak nie to pokazuje info jak powinny byc podane. Potem sprawdza czy wszystkie argumenty są dodatnie. Jeśli nie podaje Error. i zwraca 1 a jak jest ok to 0.
 int	validate_arguments(int argc, char **argv)
 {
 	int	i;
-
 	i = 1;
+
 	if (argc != 5 && argc != 6)
 	{
 		printf("Usage: %s num_philos time_to_die ", argv[0]);
@@ -513,6 +569,7 @@ int	validate_arguments(int argc, char **argv)
 	}
 	return (0);
 }
+
 
 int	main(int argc, char **argv)
 {
