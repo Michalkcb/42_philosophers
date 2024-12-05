@@ -6,7 +6,7 @@
 /*   By: mbany <mbany@student.42warsaw.pl>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 18:43:38 by mbany             #+#    #+#             */
-/*   Updated: 2024/11/26 18:44:18 by mbany            ###   ########.fr       */
+/*   Updated: 2024/12/05 19:52:31 by mbany            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include <sys/time.h>
 # include <unistd.h>
 
-# define PHILO_MAX 300
+# define PHILO_MAX 200
 
 typedef struct s_philo
 {
@@ -51,7 +51,7 @@ typedef struct s_program
 	t_philo			*philos;
 }					t_program;
 
-// Main functions
+/// Main functions
 int					check_arg_content(char *arg);
 int					check_valid_args(char **argv);
 void				destory_all(char *str, t_program *program,
@@ -64,23 +64,23 @@ void				init_philos(t_philo *philos, t_program *program,
 						pthread_mutex_t *forks, char **argv);
 void				init_input(t_philo *philo, char **argv);
 
-// Threads
+/// Threads
 int					thread_create(t_program *program, pthread_mutex_t *forks);
 void				*monitor(void *pointer);
 void				*philo_routine(void *pointer);
 
-// Actions
+/// Actions
 void				eat(t_philo *philo);
 void				dream(t_philo *philo);
 void				think(t_philo *philo);
 
-// Monitor utils
+/// Monitor utils
 int					dead_loop(t_philo *philo);
 int					check_if_all_ate(t_philo *philos);
 int					check_if_dead(t_philo *philos);
 int					philosopher_dead(t_philo *philo, size_t time_to_die);
 
-// Utils
+/// Utils
 int					ft_atoi(char *str);
 int					ft_usleep(size_t microseconds);
 int					ft_strlen(char *str);
