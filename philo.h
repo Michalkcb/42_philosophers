@@ -6,11 +6,9 @@
 /*   By: mbany <mbany@student.42warsaw.pl>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 18:43:38 by mbany             #+#    #+#             */
-/*   Updated: 2024/12/05 19:52:31 by mbany            ###   ########.fr       */
+/*   Updated: 2024/12/07 13:23:59 by mbany            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-
 
 #ifndef PHILO_H
 # define PHILO_H
@@ -57,7 +55,7 @@ int					check_valid_args(char **argv);
 void				destory_all(char *str, t_program *program,
 						pthread_mutex_t *forks);
 
-// Initialization
+/// Initialization
 void				init_program(t_program *program, t_philo *philos);
 void				init_forks(pthread_mutex_t *forks, int philo_num);
 void				init_philos(t_philo *philos, t_program *program,
